@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WFAISchedule
 {
-    public class ImageProcessing
+    public class ImageProcessor
     {
         public Image CropWhitespace(Image<Rgba32> sourceImage)
         {
@@ -45,6 +45,7 @@ namespace WFAISchedule
         }
         public Vector2 FindCellDimensions(Image<Rgba32> sourceImage)
         {
+            int threshold = 120;
             Vector2 dimensions = new Vector2(0, 0);
             Vector2 startPosition = new Vector2(sourceImage.Width - 4, sourceImage.Height / 2);
             int y = startPosition.y;
@@ -53,7 +54,7 @@ namespace WFAISchedule
             int bottomEdge = 0;
             while(y < sourceImage.Height)
             {
-                if(sourceImage[startPosition.x, y].R < 120)
+                if(sourceImage[startPosition.x, y].R < threshold)
                 {
                     if (dir > 0)
                     {
@@ -75,7 +76,7 @@ namespace WFAISchedule
             i = 0;
             while (x < sourceImage.Width)
             {
-                if (sourceImage[x, bottomEdge + 1].R < 120)
+                if (sourceImage[x, bottomEdge + 1].R < threshold)
                 {
                     if (dir > 0)
                     {
@@ -89,6 +90,31 @@ namespace WFAISchedule
             }
             dimensions.x = i;
             return dimensions;
+        }
+        public Vector2 FindPivotCell(Image<Rgba32> sourceImage, Vector2 cellSize, int outlineSize = 2)
+        {
+            Vector2 pivotCell = new Vector2(outlineSize/2, 0);
+            int y = sourceImage.Height / 2;
+            bool foundEdge = false;
+            while (y < sourceImage.Height)
+            {   
+                if(sourceImage[outlineSize + 1, y].R < 120)
+                {
+                    foundEdge = true;
+                    for(int i = 0; i < cellSize.x / 2; i++)
+                    {
+                        //check for straight horizontal line to make sure it didn't scan some random text
+                        if (sourceImage[i * 2 + 2, y].R > 120) foundEdge = false;
+                    }
+                }
+                if (foundEdge)
+                {
+                    pivotCell.y = y;
+                    break;
+                }
+                y++;
+            }
+            return pivotCell;
         }
     }
 }
