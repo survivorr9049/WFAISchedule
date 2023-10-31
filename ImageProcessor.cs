@@ -43,7 +43,7 @@ namespace WFAISchedule
             sourceImage.Mutate(x => x.Crop(cropRectangle));
             return sourceImage;
         }
-        public Vector2 FindCellDimensions(Image<Rgba32> sourceImage)
+        public Vector2 FindCellDimensions(Image<Rgba32> sourceImage, out int outlineSize)
         {
             int threshold = 120;
             Vector2 dimensions = new Vector2(0, 0);
@@ -52,12 +52,18 @@ namespace WFAISchedule
             int dir = 1;
             int i = 0;
             int bottomEdge = 0;
+            outlineSize = 0;
             while(y < sourceImage.Height)
             {
                 if(sourceImage[startPosition.x, y].R < threshold)
                 {
                     if (dir > 0)
                     {
+                        while(outlineSize < sourceImage.Height)
+                        {
+                            outlineSize++;
+                            if (sourceImage[startPosition.x, y + outlineSize].R > threshold) break;
+                        }
                         dir = -1;
                         y = startPosition.y - 1;
                     }
@@ -93,28 +99,51 @@ namespace WFAISchedule
         }
         public Vector2 FindPivotCell(Image<Rgba32> sourceImage, Vector2 cellSize, int outlineSize = 2)
         {
-            Vector2 pivotCell = new Vector2(outlineSize/2, 0);
+            int threshold = 120;
+            Vector2 pivotCell = new Vector2(outlineSize, 0);
             int y = sourceImage.Height / 2;
             bool foundEdge = false;
             while (y < sourceImage.Height)
             {   
-                if(sourceImage[outlineSize + 1, y].R < 120)
+                if(sourceImage[outlineSize + 1, y].R < threshold)
                 {
                     foundEdge = true;
                     for(int i = 0; i < cellSize.x / 2; i++)
                     {
                         //check for straight horizontal line to make sure it didn't scan some random text
-                        if (sourceImage[i * 2 + 2, y].R > 120) foundEdge = false;
+                        if (sourceImage[i * 2 + 2, y].R > threshold) foundEdge = false;
                     }
                 }
                 if (foundEdge)
                 {
-                    pivotCell.y = y;
+                    pivotCell.y = y + outlineSize;
                     break;
                 }
                 y++;
             }
             return pivotCell;
+        }
+        public Vector2 DetermineCellPosition(Image<Rgba32> sourceImage, Vector2 pivotPoint, Vector2 cellDimensions)
+        {
+            Vector2 position = new Vector2(0, 0);
+            position.y = (sourceImage.Height - pivotPoint.y) / cellDimensions.y;
+            position.x = (sourceImage.Width - pivotPoint.x) / cellDimensions.x;
+            return position;
+        }
+        public Vector2 GetTableDimensions(Image<Rgba32> sourceImage, Vector2 cellDimensions)
+        {
+            Vector2 dimensions = new Vector2(0, 0);
+            dimensions.x = sourceImage.Width / cellDimensions.x;
+            dimensions.y = sourceImage.Height / cellDimensions.y;
+            return dimensions;
+        }
+        public Rectangle GetCellRect(Image<Rgba32> sourceImage, Vector2 cellPosition, Vector2 pivotPoint, Vector2 pivotCellPosition, Vector2 cellDimensions, int outlineSize, Vector2 tableDimensions)
+        {
+            Vector2 localPosition = pivotCellPosition - cellPosition;
+            Console.WriteLine(localPosition.x + " " + localPosition.y);
+            Vector2 rectPosition = new Vector2(localPosition.x * (cellDimensions.x + outlineSize) + pivotPoint.x, localPosition.y * (cellDimensions.y + outlineSize) + pivotPoint.y);
+            Rectangle rect = new Rectangle(rectPosition.x, rectPosition.y, cellDimensions.x - 1, cellDimensions.y - 1);
+            return rect;
         }
     }
 }
