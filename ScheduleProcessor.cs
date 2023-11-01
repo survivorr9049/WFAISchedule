@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WFAISchedule {
+﻿namespace WFAISchedule {
     public class ScheduleProcessor : ImageProcessor {
         public Vector2 FindCellDimensions(Image<Rgba32> sourceImage, out int outlineSize) {
             Vector2 cellDimensions = new Vector2(0, 0);
