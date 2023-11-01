@@ -11,7 +11,7 @@
                 position.y--;
             }
             //check if color is in grayscale (empty tile)
-            while(!((sourceImage[position.x, position.y].R == sourceImage[position.x, position.y].G) && (sourceImage[position.x, position.y].R == sourceImage[position.x, position.y].B)) || sourceImage[position.x, position.y].R < threshold) {
+            while(!IsGrayscale(sourceImage[position.x, position.y]) || sourceImage[position.x, position.y].R < threshold) {
                 position.x--;
             }
             while(sourceImage[position.x, position.y].R > threshold) {

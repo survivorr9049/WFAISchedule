@@ -35,6 +35,12 @@ namespace WFAISchedule {
             Rectangle cropRectangle = new Rectangle(xLhs, yLhs, xRhs - xLhs, yRhs - yLhs);
             sourceImage.Mutate(x => x.Crop(cropRectangle));
         }
+        public bool IsGrayscale(Rgba32 pixel, int maxDelta = 2) {
+            int deltaRB = Math.Abs(pixel.R - pixel.B);
+            int deltaBG = Math.Abs(pixel.B - pixel.G);
+            int delta = Math.Max(deltaRB, deltaBG);
+            return delta <= maxDelta;
+        }
         
     }
 }
