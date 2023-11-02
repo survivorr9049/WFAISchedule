@@ -29,7 +29,8 @@ using(var image = Image.Load<Rgba32>("../../../sources/schedule.png")) {
         try {
             Vector2 requestedCell = new(coordinates[0], coordinates[1]);
             Vector2 tableDimensions = scheduleProcessor.GetTableDimensions(image, cellDimensions);
-            Rectangle rect = scheduleProcessor.GetCellRect(image, cellDimensions, requestedCell, tableDimensions, outlineSize);
+            Vector2 cellOccupation = new();
+            Rectangle rect = scheduleProcessor.GetCellRect(image, cellDimensions, requestedCell, outlineSize, out cellOccupation);
             Image<Rgba32> i = image.Clone();
             i.Mutate(x => x.Crop(rect));
             //i.Save("output.png");
@@ -40,14 +41,18 @@ using(var image = Image.Load<Rgba32>("../../../sources/schedule.png")) {
             using(var img = Pix.LoadFromMemory(bytes)) 
             using(var page = engine.Process(img)) {
                 var text = page.GetText();
-                Console.WriteLine(text);
+                //Console.WriteLine(text);
+                ScheduleCell cell = new ScheduleCell(cellOccupation, text, scheduleProcessor.GetCellType(cellOccupation, text));
+                Console.WriteLine(cell.occupation.x);
+                Console.WriteLine(cell.textData.Split("\n")[0]);
+                Console.WriteLine(cell.type);
             }  
         } catch {
             Console.WriteLine($"Unable to get cell ({coordinates[0]}, {coordinates[1]})");
             continue;
         }
 
-        Console.WriteLine("Success! Saved to `output.png`");
+        //Console.WriteLine("Success! Saved to `output.png`");
     }
 
 }

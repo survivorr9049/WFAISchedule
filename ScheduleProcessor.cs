@@ -36,7 +36,8 @@
             Vector2 dimensions = new Vector2(sourceImage.Width / cellDimensions.x, sourceImage.Height / cellDimensions.y);
             return dimensions;
         }
-        public Rectangle GetCellRect(Image<Rgba32> sourceImage, Vector2 cellDimensions, Vector2 cellPosition, Vector2 tableDimensions, int outlineSize) {
+
+        public Rectangle GetCellRect(Image<Rgba32> sourceImage, Vector2 cellDimensions, Vector2 cellPosition, int outlineSize, out Vector2 cellOccupation) {
             Vector2 rectPosition = new Vector2(0, 0);
             int threshold = Config.threshold;
             rectPosition.x = sourceImage.Width - cellPosition.x * (cellDimensions.x + outlineSize * 2);
@@ -60,7 +61,13 @@
             Console.WriteLine(height);
             Console.WriteLine(width);
             Rectangle cellRect = new Rectangle(rectPosition.x, rectPosition.y, cellDimensions.x * width, cellDimensions.y * height);
+            cellOccupation = new Vector2(width, height);
             return cellRect;
+        }
+        public CellType GetCellType(Vector2 occupation, string textData) {
+            if(occupation.x > 1) return CellType.Lecture;
+            else if(textData.Length == 0) return CellType.Empty;
+            return CellType.Practice;
         }
     }
 }
