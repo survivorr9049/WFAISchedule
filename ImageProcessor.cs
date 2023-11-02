@@ -8,7 +8,7 @@ namespace WFAISchedule {
     public class ImageProcessor {
         public void CropWhitespace(Image<Rgba32> sourceImage) {
             //find whitespace
-            int threshold = 120;
+            int threshold = Config.threshold;
             int scanHeight = sourceImage.Height / 2;
             int scanWidth = sourceImage.Width / 2;
             int xLhs = 0;

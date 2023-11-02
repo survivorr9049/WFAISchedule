@@ -3,7 +3,7 @@
         public Vector2 FindCellDimensions(Image<Rgba32> sourceImage, out int outlineSize) {
             Vector2 cellDimensions = new Vector2(0, 0);
             Vector2 position = new Vector2(sourceImage.Width-1, sourceImage.Height-1);
-            int threshold = 60;
+            int threshold = Config.threshold;
             outlineSize = 1;
             int i = 0;
             while(sourceImage[position.x, position.y].R < threshold) {
@@ -38,9 +38,28 @@
         }
         public Rectangle GetCellRect(Image<Rgba32> sourceImage, Vector2 cellDimensions, Vector2 cellPosition, Vector2 tableDimensions, int outlineSize) {
             Vector2 rectPosition = new Vector2(0, 0);
-            rectPosition.x = sourceImage.Width - cellPosition.x * (cellDimensions.x + outlineSize);
-            rectPosition.y = sourceImage.Height - cellPosition.y * (cellDimensions.y + outlineSize);
-            Rectangle cellRect = new Rectangle(rectPosition.x, rectPosition.y, cellDimensions.x, cellDimensions.y);
+            int threshold = Config.threshold;
+            rectPosition.x = sourceImage.Width - cellPosition.x * (cellDimensions.x + outlineSize * 2);
+            rectPosition.y = sourceImage.Height - cellPosition.y * (cellDimensions.y + outlineSize * 2);
+            Vector2 position = rectPosition;
+            //find cell height
+            int i = 0;
+            while(sourceImage[position.x, position.y].R > threshold) {
+                i++;
+                position.y++;
+            }
+            int height = (int)Math.Round((float)i / (float)cellDimensions.y);
+            //find cell width
+            i = 0;
+            position = rectPosition;
+            while(sourceImage[position.x, position.y].R > threshold) {
+                i++;
+                position.x++;
+            }
+            int width = (int)Math.Round((float)i / (float)cellDimensions.x);
+            Console.WriteLine(height);
+            Console.WriteLine(width);
+            Rectangle cellRect = new Rectangle(rectPosition.x, rectPosition.y, cellDimensions.x * width, cellDimensions.y * height);
             return cellRect;
         }
     }

@@ -1,5 +1,6 @@
 ﻿using WFAISchedule;
 using Tesseract;
+
 using(var image = Image.Load<Rgba32>("../../../sources/schedule.png")) {
     ScheduleProcessor scheduleProcessor = new();
     scheduleProcessor.CropWhitespace(image);
@@ -29,11 +30,14 @@ using(var image = Image.Load<Rgba32>("../../../sources/schedule.png")) {
             Vector2 requestedCell = new(coordinates[0], coordinates[1]);
             Vector2 tableDimensions = scheduleProcessor.GetTableDimensions(image, cellDimensions);
             Rectangle rect = scheduleProcessor.GetCellRect(image, cellDimensions, requestedCell, tableDimensions, outlineSize);
-            Image i = image.Clone();
+            Image<Rgba32> i = image.Clone();
             i.Mutate(x => x.Crop(rect));
-            i.Save("output.png");
-            using(var engine = new TesseractEngine(@"../../../tessdata", "pol", EngineMode.LstmOnly))
-            using(var img = Pix.LoadFromFile("output.png"))
+            //i.Save("output.png");
+            MemoryStream stream = new();
+            i.Save(stream, i.Metadata.DecodedImageFormat!);
+            byte[] bytes = stream.ToArray();
+            using(var engine = new TesseractEngine(@"../../../tessdata", "eng", EngineMode.LstmOnly))
+            using(var img = Pix.LoadFromMemory(bytes)) 
             using(var page = engine.Process(img)) {
                 var text = page.GetText();
                 Console.WriteLine(text);
@@ -45,4 +49,5 @@ using(var image = Image.Load<Rgba32>("../../../sources/schedule.png")) {
 
         Console.WriteLine("Success! Saved to `output.png`");
     }
+
 }

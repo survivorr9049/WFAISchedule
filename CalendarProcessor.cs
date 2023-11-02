@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace WFAISchedule {
     public class CalendarProcessor : ImageProcessor {
         public Vector2 FindCellDimensions(Image<Rgba32> sourceImage, out int outlineSize) {
-            int threshold = 120;
+            int threshold = Config.threshold;
             Vector2 dimensions = new Vector2(0, 0);
             Vector2 startPosition = new Vector2(sourceImage.Width - 4, sourceImage.Height / 2);
             int y = startPosition.y;
@@ -50,7 +50,7 @@ namespace WFAISchedule {
             return dimensions;
         }
         public Vector2 FindPivotCell(Image<Rgba32> sourceImage, Vector2 cellSize, int outlineSize = 2) {
-            int threshold = 120;
+            int threshold = Config.threshold;
             Vector2 pivotCell = new Vector2(outlineSize, 0);
             int y = sourceImage.Height / 2;
             bool foundEdge = false;
