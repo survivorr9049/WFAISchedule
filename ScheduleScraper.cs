@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Tesseract;
 namespace WFAISchedule {
     public class ScheduleScraper {
-        public List<ScheduleCell> GetDaySchedule(Image<Rgba32> sourceImage, int day) {
+        public List<ScheduleCell> GetDaySchedule(Image<Rgba32> sourceImage, int day, int group) {
             ScheduleProcessor scheduleProcessor = new();
             int outlineSize = 0;
             Vector2 cellDimensions = scheduleProcessor.FindCellDimensions(sourceImage, out outlineSize);
@@ -14,7 +14,17 @@ namespace WFAISchedule {
             Vector2 position = new Vector2((6 - day) * 3, 12);
             while(position.y > 0) {
                 ScheduleCell currentCell = GetScheduleCell(sourceImage, position, cellDimensions, outlineSize, scheduleProcessor);
+                if(currentCell.type != CellType.Lecture)
+                    if(group > 1) currentCell = GetScheduleCell(sourceImage, position - new Vector2(group - 1, 0), cellDimensions, outlineSize, scheduleProcessor);
                 position.y -= currentCell.occupation.y;
+                //omit tri-colored group
+                if(currentCell.type == CellType.Lecture && currentCell.textData.Contains("lab")) {
+                    ScheduleCell dummyCell = new ScheduleCell(new Vector2(1, 1), "", CellType.Empty, true);
+                    for(int i = 0; i < currentCell.occupation.y; i++) {
+                        cells.Add(dummyCell);
+                    }
+                    continue;
+                }
                 cells.Add(currentCell);
             }
             //cells.Add(GetScheduleCell(sourceImage, new Vector2(1, 9), cellDimensions, outlineSize, scheduleProcessor));
@@ -33,7 +43,7 @@ namespace WFAISchedule {
             using(var img = Pix.LoadFromMemory(bytes))
             using(var page = engine.Process(img)) {
                 var text = page.GetText();
-                cell = new ScheduleCell(cellOccupation, text, scheduleProcessor.GetCellType(cellOccupation, text));
+                cell = new ScheduleCell(cellOccupation, text, scheduleProcessor.GetCellType(cellOccupation, text), scheduleProcessor.GetCellFrequency(text));
             }
             return cell;
         }

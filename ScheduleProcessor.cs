@@ -49,7 +49,7 @@
                 i++;
                 position.y++;
             }
-            int height = (int)Math.Round((float)i / (float)cellDimensions.y);
+            int height = Math.Clamp((int)Math.Round((float)i / (float)cellDimensions.y), 1, 3);
             //find cell width
             i = 0;
             position = rectPosition;
@@ -57,7 +57,7 @@
                 i++;
                 position.x++;
             }
-            int width = (int)Math.Round((float)i / (float)cellDimensions.x);
+            int width = Math.Clamp((int)Math.Round((float)i / (float)cellDimensions.x), 1, 3);
             Rectangle cellRect = new Rectangle(rectPosition.x, rectPosition.y, cellDimensions.x * width, cellDimensions.y * height);
             cellOccupation = new Vector2(width, height);
             return cellRect;
@@ -66,6 +66,15 @@
             if(occupation.x > 1) return CellType.Lecture;
             else if(textData.Length == 0) return CellType.Empty;
             return CellType.Practice;
+        }
+        public bool GetCellFrequency(string textData) {
+            if(textData.ToLower().Contains("kalen")) return false;
+            return true;
+        }
+        public string GetCellCode(string textData, CellType type) {
+            if(type == CellType.Practice) return textData.Split()[0];
+            if(type == CellType.Lecture) return textData.Substring(textData.IndexOf("(") + 1, textData.IndexOf(")") - textData.IndexOf("(") - 1);
+            return "";
         }
     }
 }
