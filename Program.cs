@@ -25,41 +25,20 @@ using(var image = Image.Load<Rgba32>("../../../sources/schedule.png")) {
             Console.WriteLine("Format error");
             continue;
         }
-
-        //try {
-            ScheduleScraper scraper = new();
-            List<ScheduleCell> cells = scraper.GetDaySchedule(image, coordinates[0], coordinates[1]);
-            foreach(ScheduleCell cell in cells) {
-                Console.WriteLine(cell.textData.Split("\n")[0] + " " + cell.occupation.y + "h" + " " + cell.type);
-                Console.WriteLine($" {(cell.always ? "always" : "according to calendar")}");
-                Console.WriteLine($"Cell Code: {scheduleProcessor.GetCellCode(cell.textData, cell.type)} \n");
-            }
-            /*Vector2 requestedCell = new(coordinates[0], coordinates[1]);
-            Vector2 tableDimensions = scheduleProcessor.GetTableDimensions(image, cellDimensions);
-            Vector2 cellOccupation = new();
-            Rectangle rect = scheduleProcessor.GetCellRect(image, cellDimensions, requestedCell, outlineSize, out cellOccupation);
-            Image<Rgba32> i = image.Clone();
-            i.Mutate(x => x.Crop(rect));
-            //i.Save("output.png");
-            MemoryStream stream = new();
-            i.Save(stream, i.Metadata.DecodedImageFormat!);
-            byte[] bytes = stream.ToArray();
-            using(var engine = new TesseractEngine(@"../../../tessdata", "eng", EngineMode.LstmOnly))
-            using(var img = Pix.LoadFromMemory(bytes)) 
-            using(var page = engine.Process(img)) {
-                var text = page.GetText();
-                //Console.WriteLine(text);
-                ScheduleCell cell = new ScheduleCell(cellOccupation, text, scheduleProcessor.GetCellType(cellOccupation, text), scheduleProcessor.GetCellFrequency(text));
-                Console.WriteLine($"duration: {cell.occupation.y}h");
-                Console.WriteLine(cell.textData.Split("\n")[0]);
-                Console.WriteLine(cell.type);
-            }  */
-       /* } catch {
-            Console.WriteLine($"Unable to get cell ({coordinates[0]}, {coordinates[1]})");
-            continue;
-        }*/
-
-        //Console.WriteLine("Success! Saved to `output.png`");
+        ScheduleScraper scraper = new();
+        List<ScheduleCell> cells = scraper.GetDaySchedule(image, coordinates[0], coordinates[1]);
+        foreach(ScheduleCell cell in cells) {
+            Console.WriteLine(cell.textData.Split("\n")[0] + " " + cell.occupation.y + "h" + " " + cell.type);
+            Console.WriteLine($" {(cell.always ? "always" : "according to calendar")}");
+            Console.WriteLine($"Cell Code: {scheduleProcessor.GetCellCode(cell.textData, cell.type)} \n");
+        }
+        using(var calendarImage = Image.Load<Rgba32>("../../../sources/calendar.png")) {
+           
+            CalendarScraper calendarScraper = new();
+            CalendarCell cell = calendarScraper.GetCellData(calendarImage, 17);
+            Console.WriteLine($"{cell.day} \n {string.Join("\n", cell.subjects)}");
+        }
+ 
     }
 
 }

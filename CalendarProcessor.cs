@@ -89,6 +89,23 @@ namespace WFAISchedule {
             Rectangle rect = new Rectangle(rectPosition.x, rectPosition.y, cellDimensions.x - 1, cellDimensions.y - 1);
             return rect;
         }
+        public List<string> GetCellSubjects(string textData, out int day) {
+            List<string> entries = new List<string>();
+            entries = textData.Split().ToList();
+            int i = -1;
+            day = 0;
+            foreach(string entry in entries) {
+                try {
+                    i++;
+                    day = int.Parse(entry);
+                    break;
+                } catch {
+                }
+            }
+            entries.RemoveAt(i);
+            entries.RemoveAll(s => string.IsNullOrWhiteSpace(s));
+            return entries;
+        }
     }
     
 }

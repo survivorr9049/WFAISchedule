@@ -28,7 +28,6 @@ namespace WFAISchedule {
                 }
                 cells.Add(currentCell);
             }
-            //cells.Add(GetScheduleCell(sourceImage, new Vector2(1, 9), cellDimensions, outlineSize, scheduleProcessor));
             return cells;
         }
         public ScheduleCell GetScheduleCell(Image<Rgba32> sourceImage, Vector2 requestedCell, Vector2 cellDimensions, int outlineSize, ScheduleProcessor scheduleProcessor) {
