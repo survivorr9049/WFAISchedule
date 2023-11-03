@@ -27,6 +27,11 @@ using(var image = Image.Load<Rgba32>("../../../sources/schedule.png")) {
         }
 
         try {
+            ScheduleScraper scraper = new();
+            List<ScheduleCell> cells = scraper.GetDaySchedule(image, 1);
+            foreach(ScheduleCell cell in cells) {
+                Console.WriteLine(cell.textData.Split("\n")[0] + " " + cell.occupation.y + "h" + " " + cell.type + "\n");
+            }
             Vector2 requestedCell = new(coordinates[0], coordinates[1]);
             Vector2 tableDimensions = scheduleProcessor.GetTableDimensions(image, cellDimensions);
             Vector2 cellOccupation = new();
@@ -43,7 +48,7 @@ using(var image = Image.Load<Rgba32>("../../../sources/schedule.png")) {
                 var text = page.GetText();
                 //Console.WriteLine(text);
                 ScheduleCell cell = new ScheduleCell(cellOccupation, text, scheduleProcessor.GetCellType(cellOccupation, text));
-                Console.WriteLine(cell.occupation.x);
+                Console.WriteLine($"duration: {cell.occupation.y}h");
                 Console.WriteLine(cell.textData.Split("\n")[0]);
                 Console.WriteLine(cell.type);
             }  

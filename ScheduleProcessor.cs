@@ -58,8 +58,6 @@
                 position.x++;
             }
             int width = (int)Math.Round((float)i / (float)cellDimensions.x);
-            Console.WriteLine(height);
-            Console.WriteLine(width);
             Rectangle cellRect = new Rectangle(rectPosition.x, rectPosition.y, cellDimensions.x * width, cellDimensions.y * height);
             cellOccupation = new Vector2(width, height);
             return cellRect;
