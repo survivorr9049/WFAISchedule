@@ -49,7 +49,7 @@
                 i++;
                 position.y++;
             }
-            int height = Math.Clamp((int)Math.Round((float)i / (float)cellDimensions.y), 1, 3);
+            int height = Math.Clamp((int)Math.Round((float)i / (float)cellDimensions.y + 0.05f), 1, 3);
             //find cell width
             i = 0;
             position = rectPosition;
@@ -57,13 +57,13 @@
                 i++;
                 position.x++;
             }
-            int width = Math.Clamp((int)Math.Round((float)i / (float)cellDimensions.x), 1, 3);
+            int width = Math.Clamp((int)Math.Round((float)i / (float)cellDimensions.x + 0.05f), 1, 3);
             Rectangle cellRect = new Rectangle(rectPosition.x, rectPosition.y, cellDimensions.x * width, cellDimensions.y * height);
             cellOccupation = new Vector2(width, height);
             return cellRect;
         }
         public CellType GetCellType(Vector2 occupation, string textData) {
-            if(occupation.x > 1) return CellType.Lecture;
+            if(occupation.x > 1 && occupation.y > 1) return CellType.Lecture;
             else if(textData.Length == 0) return CellType.Empty;
             return CellType.Practice;
         }

@@ -17,11 +17,12 @@ namespace WFAISchedule {
                 if(currentCell.type != CellType.Lecture)
                     if(group > 1) currentCell = GetScheduleCell(sourceImage, position - new Vector2(group - 1, 0), cellDimensions, outlineSize, scheduleProcessor);
                 position.y -= currentCell.occupation.y;
-                //omit tri-colored group
-                if(currentCell.type == CellType.Lecture && currentCell.textData.Contains("lab")) {
+                //omit tri-colored group and overlapping cells
+                if(currentCell.type == CellType.Lecture && currentCell.textData.Contains("lab") || currentCell.occupation.y < 2 && currentCell.type != CellType.Empty) {
                     ScheduleCell dummyCell = new ScheduleCell(new Vector2(1, 1), "", CellType.Empty, true);
                     for(int i = 0; i < currentCell.occupation.y; i++) {
                         cells.Add(dummyCell);
+                        Console.WriteLine("omiting " + position.y);
                     }
                     continue;
                 }
