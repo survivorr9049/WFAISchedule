@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WFAISchedule {
+﻿namespace WFAISchedule {
     public class CalendarProcessor : ImageProcessor {
         public Vector2 FindCellDimensions(Image<Rgba32> sourceImage, out int outlineSize) {
             int threshold = Config.threshold;
@@ -90,7 +84,7 @@ namespace WFAISchedule {
             return rect;
         }
         public List<string> GetCellSubjects(string textData, out int day) {
-            List<string> entries = new List<string>();
+            List<string> entries;
             entries = textData.Split().ToList();
             int i = -1;
             day = 0;

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace WFAISchedule {
+﻿namespace WFAISchedule {
     public class ImageProcessor {
         public void CropWhitespace(Image<Rgba32> sourceImage) {
             //find whitespace
