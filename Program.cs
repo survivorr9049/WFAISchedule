@@ -1,5 +1,6 @@
 ﻿using WFAISchedule;
 using Tesseract;
+Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 using(var image = Image.Load<Rgba32>("../../../sources/schedule.png")) {
     ScheduleProcessor scheduleProcessor = new();
@@ -33,9 +34,12 @@ using(var image = Image.Load<Rgba32>("../../../sources/schedule.png")) {
             Console.WriteLine($"Cell Code: {scheduleProcessor.GetCellCode(cell.textData, cell.type)} \n");
         }
         using(var calendarImage = Image.Load<Rgba32>("../../../sources/calendar.png")) {
-           
+
             CalendarScraper calendarScraper = new();
             CalendarCell cell = calendarScraper.GetCellData(calendarImage, 17);
+            string month = calendarScraper.GetCalendarMonth(calendarImage);
+            Console.WriteLine($"{month}, w związku z powyższym: {calendarScraper.months[calendarScraper.RemoveSpecialCharacters(month)]}");
+            Console.WriteLine(calendarScraper.RemoveSpecialCharacters("ęśąćżżżaaażęśśżc"));
             Console.WriteLine($"{cell.day} \n {string.Join("\n", cell.subjects)}");
         }
  

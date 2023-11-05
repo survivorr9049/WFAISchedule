@@ -1,5 +1,6 @@
 ﻿namespace WFAISchedule {
     public class CalendarProcessor : ImageProcessor {
+        //Dictionary<string, int> MonthIndex = 
         public Vector2 FindCellDimensions(Image<Rgba32> sourceImage, out int outlineSize) {
             int threshold = Config.threshold;
             Vector2 dimensions = new Vector2(0, 0);
@@ -82,6 +83,18 @@
             Vector2 rectPosition = new Vector2(localPosition.x * (cellDimensions.x + outlineSize) + pivotPoint.x, localPosition.y * (cellDimensions.y + outlineSize) + pivotPoint.y);
             Rectangle rect = new Rectangle(rectPosition.x, rectPosition.y, cellDimensions.x - 1, cellDimensions.y - 1);
             return rect;
+        }
+        public Rectangle GetMonthRect(Image<Rgba32> sourceImage) {
+            Vector2 position = new Vector2(sourceImage.Width / 2, 0);
+            while(sourceImage[position.x, position.y].R < Config.threshold) {
+                position.y++;
+            }
+            int count = 0;
+            while(sourceImage[position.x, position.y].R >= Config.threshold) {
+                count++;
+                position.y++;
+            }
+            return new Rectangle(0, 0, sourceImage.Width, count);
         }
         public List<string> GetCellSubjects(string textData, out int day) {
             List<string> entries;

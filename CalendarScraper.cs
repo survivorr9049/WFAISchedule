@@ -1,6 +1,31 @@
 ﻿using Tesseract;
 namespace WFAISchedule {
     public class CalendarScraper {
+        public Dictionary<char, char> specialCharacters = new Dictionary<char, char>() {
+            {'ą', 'a'},
+            {'ę', 'e'},
+            {'ć', 'c'},
+            {'ó', 'o'},
+            {'ń', 'n'},
+            {'ł', 'l'},
+            {'ś', 's'},
+            {'ż', 'z'}
+        };
+        public Dictionary<string, int> months = new Dictionary<string, int>()
+        {
+            {"styczen", 1},
+            {"luty", 2},
+            {"marzec", 3},
+            {"kwiecien", 4},
+            {"maj", 5},
+            {"czerwiec", 6},
+            {"lipiec", 7},
+            {"sierpien", 8},
+            {"wrzesien", 9},
+            {"pazdziernik", 10},
+            {"listopad", 11},
+            {"grudzien", 12},
+        };
         public CalendarCell GetCellData(Image<Rgba32> sourceImage, int index) {
             CalendarCell cell;
             CalendarProcessor calendarProcessor = new();
@@ -28,6 +53,29 @@ namespace WFAISchedule {
                 }
             }
             return cell;
+        }
+        public string GetCalendarMonth(Image<Rgba32> sourceImage) {
+            string month;
+            CalendarProcessor calendarProcessor = new();
+            Image<Rgba32> i = sourceImage.Clone();
+            i.Mutate(x => x.Crop(calendarProcessor.GetMonthRect(i)));
+            MemoryStream stream = new();
+            i.Save(stream, sourceImage.Metadata.DecodedImageFormat!);
+            byte[] bytes = stream.ToArray();
+            using(var engine = new TesseractEngine(@"../../../tessdata", "eng", EngineMode.LstmOnly)) {
+                using(var img = Pix.LoadFromMemory(bytes))
+                using(var page = engine.Process(img)) {
+                    month = page.GetText().Split()[0].ToLower().Replace(@"/[^a - z] /", "");
+                }
+            }
+            return month;
+        }
+        public string RemoveSpecialCharacters(string input) {
+            return new String(input.Select(c => {
+                if(specialCharacters.ContainsKey(c))
+                    return specialCharacters[c];
+                else return c;
+            }).ToArray());
         }
     }
 }
