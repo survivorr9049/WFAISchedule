@@ -33,14 +33,21 @@ using(var image = Image.Load<Rgba32>("../../../sources/schedule.png")) {
             Console.WriteLine($" {(cell.always ? "always" : "according to calendar")}");
             Console.WriteLine($"Cell Code: {scheduleProcessor.GetCellCode(cell.textData, cell.type)} \n");
         }
-        using(var calendarImage = Image.Load<Rgba32>("../../../sources/calendar.png")) {
-
+        using(var calendarImage = Image.Load<Rgba32>("../../../sources/calendar1.png")) {
+            CalendarCell[] days = new CalendarCell[31];
             CalendarScraper calendarScraper = new();
-            CalendarCell cell = calendarScraper.GetCellData(calendarImage, 17);
-            string month = calendarScraper.GetCalendarMonth(calendarImage);
-            Console.WriteLine($"{month}, w związku z powyższym: {calendarScraper.months[calendarScraper.RemoveSpecialCharacters(month)]}");
-            Console.WriteLine(calendarScraper.RemoveSpecialCharacters("ęśąćżżżaaażęśśżc"));
-            Console.WriteLine($"{cell.day} \n {string.Join("\n", cell.subjects)}");
+            for(int i = 1; i <= 20; i++) {
+                CalendarCell cell = calendarScraper.GetCellData(calendarImage, i);
+                //Console.WriteLine($"{cell.day} \n {string.Join("\n", cell.subjects)}");
+                days[cell.day] = cell;
+            }
+            Console.WriteLine(calendarScraper.RemoveSpecialCharacters(calendarScraper.GetCalendarMonth(calendarImage)));
+            int month = calendarScraper.months[calendarScraper.RemoveSpecialCharacters(calendarScraper.GetCalendarMonth(calendarImage))];
+            for(int i = 0; i < 31; i++) {
+                try { Console.WriteLine($"your subjects at {i}.{month}: \n {string.Join("\n", days[i].subjects)}"); } catch { }
+            }
+            //CalendarCell cell = calendarScraper.GetCellData(calendarImage, 17);
+            //Console.WriteLine($"{month}, w związku z powyższym: {calendarScraper.months[calendarScraper.RemoveSpecialCharacters(month)]}");
         }
  
     }

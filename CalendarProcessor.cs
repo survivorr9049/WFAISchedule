@@ -79,13 +79,13 @@
         }
         public Rectangle GetCellRect(Image<Rgba32> sourceImage, Vector2 cellPosition, Vector2 pivotPoint, Vector2 pivotCellPosition, Vector2 cellDimensions, int outlineSize, Vector2 tableDimensions) {
             Vector2 localPosition = pivotCellPosition - cellPosition;
-            Console.WriteLine(localPosition.x + " " + localPosition.y);
+            Console.WriteLine(cellPosition.x + " " + cellPosition.y);
             Vector2 rectPosition = new Vector2(localPosition.x * (cellDimensions.x + outlineSize) + pivotPoint.x, localPosition.y * (cellDimensions.y + outlineSize) + pivotPoint.y);
             Rectangle rect = new Rectangle(rectPosition.x, rectPosition.y, cellDimensions.x - 1, cellDimensions.y - 1);
             return rect;
         }
         public Rectangle GetMonthRect(Image<Rgba32> sourceImage) {
-            Vector2 position = new Vector2(sourceImage.Width / 2, 0);
+            Vector2 position = new Vector2(sourceImage.Width / 6, 0);
             while(sourceImage[position.x, position.y].R < Config.threshold) {
                 position.y++;
             }

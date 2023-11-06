@@ -35,7 +35,7 @@ namespace WFAISchedule {
             Vector2 pivotCell = calendarProcessor.FindPivotCell(sourceImage, calendarCellDimensions, calendarOutline);
             Vector2 pivotCellPosition = calendarProcessor.DetermineCellPosition(sourceImage, pivotCell, calendarCellDimensions);
             Vector2 dimensions = calendarProcessor.GetTableDimensions(sourceImage, calendarCellDimensions);
-            Vector2 position = new Vector2((index % dimensions.x - 1), (index / dimensions.x));
+            Vector2 position = new Vector2((index - 1) % dimensions.x, ((index - 1) / dimensions.x));
             position = new Vector2(dimensions.x - position.x, dimensions.y - position.y);
             Rectangle rect = calendarProcessor.GetCellRect(sourceImage, position, pivotCell, pivotCellPosition, calendarCellDimensions, calendarOutline, dimensions);
             Image<Rgba32> c = sourceImage.Clone();
@@ -63,9 +63,10 @@ namespace WFAISchedule {
             i.Save(stream, sourceImage.Metadata.DecodedImageFormat!);
             byte[] bytes = stream.ToArray();
             using(var engine = new TesseractEngine(@"../../../tessdata", "eng", EngineMode.LstmOnly)) {
+                engine.DefaultPageSegMode = PageSegMode.SingleBlock;
                 using(var img = Pix.LoadFromMemory(bytes))
                 using(var page = engine.Process(img)) {
-                    month = page.GetText().Split()[0].ToLower().Replace(@"/[^a - z] /", "");
+                    month = page.GetText().Split()[0].ToLower();
                 }
             }
             return month;
