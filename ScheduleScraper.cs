@@ -4,6 +4,7 @@ namespace WFAISchedule {
         public List<ScheduleCell> GetDaySchedule(Image<Rgba32> sourceImage, int day, int group) {
             ScheduleProcessor scheduleProcessor = new();
             int outlineSize = 0;
+            scheduleProcessor.CropWhitespace(sourceImage);
             Vector2 cellDimensions = scheduleProcessor.FindCellDimensions(sourceImage, out outlineSize);
             List<ScheduleCell> cells = new List<ScheduleCell>();
             Vector2 position = new Vector2((6 - day) * 3, 12);
