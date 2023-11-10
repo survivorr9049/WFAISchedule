@@ -18,47 +18,71 @@ CalendarCell[,] lectureCalendarDays = ScrapeAllCalendars("../../../calendars/lec
 
 ScheduleProcessor scheduleProcessor = new();
 string csv = GenerateCsvHeader();
+Console.WriteLine(string.Join("\n", lectureCalendarDays[24, 10].subjects));
 for(int month = 0; month < 12; month++) {
     for(int day = 1; day < 32; day++) {
-        Console.WriteLine($"day: {day} of {month}");
-        DateTime date;
-        Console.WriteLine(calendarDays[day, month].day);
-        if(lectureCalendarDays[day, month].day != 0 && calendarDays[day, month].day != 0) date = new DateTime(2023, month + 1, calendarDays[day, month].day);
-        else continue;
+        if(calendarDays[day, month].day == 0) continue;
+        DateTime date = new DateTime(2023, month + 1, calendarDays[day, month].day);
         List<ScheduleCell> scheduleDay = scheduleDays[(int)date.DayOfWeek - 1];
-        int hour = Config.startTime;
+        int time = Config.startTime;
         foreach(ScheduleCell cell in scheduleDay) {
-            if(cell.type == CellType.Practice) {
-                if(cell.always || (calendarDays[day, month].subjects.Contains(scheduleProcessor.GetCellCode(cell.textData, cell.type)))) {
-                    Console.WriteLine(scheduleProcessor.GetCellCode(cell.textData, cell.type));
-                    if(cell.type != CellType.Empty) csv += GenerateCsvEntry(cell, hour, day, month + 1, 2023);
-                    hour += cell.occupation.y;
-                } else {
-                    hour += cell.occupation.y;
-                }
+            if(cell.type != CellType.Practice) {
+                time += cell.occupation.y;
             } else {
-                if(cell.always || lectureCalendarDays[day, month].subjects.Contains(scheduleProcessor.GetCellCode(cell.textData, cell.type))) {
-                    Console.WriteLine(scheduleProcessor.GetCellCode(cell.textData, cell.type));
-                    if(cell.type != CellType.Empty) csv += GenerateCsvEntry(cell, hour, day, month + 1, 2023);
-                    hour += cell.occupation.y;
+                if(cell.always) {
+                    csv += GenerateCsvEntry(cell, time, day, month + 1, 2023);
+                    time += cell.occupation.y;
                 } else {
-                    hour += cell.occupation.y;
+                    if(calendarDays[day, month].subjects.Contains(scheduleProcessor.GetCellCode(cell.textData, cell.type))){
+                        csv += GenerateCsvEntry(cell, time, day, month + 1, 2023);
+                    }
+                    time += cell.occupation.y;
                 }
             }
         }
     }
 }
-using(FileStream KRYSTUS = File.Create("KRYSTUS.csv")) {
+for(int month = 0; month < 12; month++) {
+    for(int day = 1; day < 32; day++) {
+        if(lectureCalendarDays[day, month].day == 0) continue;
+        Console.WriteLine(lectureCalendarDays[day, month].day);
+        Console.WriteLine($"{day} of {month}");
+        DateTime date = new DateTime(2023, month + 1, lectureCalendarDays[day, month].day);
+        Console.WriteLine(date);
+        if((int)date.DayOfWeek > 5) continue;
+        List<ScheduleCell> scheduleDay = scheduleDays[(int)date.DayOfWeek - 1];
+        int time = Config.startTime;
+        foreach(ScheduleCell cell in scheduleDay) {
+            if(cell.type != CellType.Lecture) {
+                time += cell.occupation.y;
+            } else {
+                if(cell.always) {
+                    csv += GenerateCsvEntry(cell, time, day, month + 1, 2023);
+                    time += cell.occupation.y;
+                } else {
+                    if(lectureCalendarDays[day, month].subjects.Contains(scheduleProcessor.GetCellCode(cell.textData, cell.type))) {
+                        csv += GenerateCsvEntry(cell, time, day, month + 1, 2023);
+                    }
+                    time += cell.occupation.y;
+                }
+            }
+        }
+    }
+}
+using(FileStream output = File.Create("output.csv")) {
     byte[] FT = new UTF8Encoding(true).GetBytes(csv);
-    KRYSTUS.Write(FT, 0, FT.Length);
+    output.Write(FT, 0, FT.Length);
 }
 
 
 string GenerateCsvEntry(ScheduleCell cell, int hour, int day, int month, int year) {
-    return $"{scheduleProcessor.GetCellCode(cell.textData, cell.type)}, {day}/{month}/{year}, {hour}:00, {hour + cell.occupation.y}:00, \n";
+    string description;
+    if(cell.type == CellType.Lecture) description = "Lecture";
+    else description = "Practice";
+    return $"{scheduleProcessor.GetCellCode(cell.textData, cell.type)} - {description}, {day}/{month}/{year}, {hour}:00, {hour + cell.occupation.y}:00, {description} \n";
 }
 string GenerateCsvHeader() {
-    return $"Subject, Start Date, Start time, End Time,\n";
+    return $"Subject, Start Date, Start time, End Time, Description,\n";
 }
 CalendarCell[,] ScrapeAllCalendars(string directory) {
     string[] calendars = Directory.GetFiles(directory);
@@ -83,76 +107,3 @@ CalendarCell[,] ScrapeAllCalendars(string directory) {
     }
     return calendarDays;
 }
-/*DateTime date = new DateTime(2023, 10, 12);
-List<ScheduleCell> day = scheduleDays[(int)date.DayOfWeek - 1];
-ScheduleProcessor processor1 = new();
-foreach(ScheduleCell cell in day) {
-    try {
-        Console.Write($"comparing {processor1.GetCellCode(cell.textData, cell.type)} to {string.Join(" ", calendarDays[12, 9].subjects)}");
-        if(calendarDays[12, 9].subjects.Contains(processor1.GetCellCode(cell.textData, cell.type))) {
-            Console.Write(" FOUND! \n");
-            Console.WriteLine(cell.textData.Split("\n")[0] + " " + cell.occupation.y + "h" + " " + cell.type);
-            Console.WriteLine($" {(cell.always ? "always" : "according to calendar")}");
-            Console.WriteLine($"Cell Code: {processor1.GetCellCode(cell.textData, cell.type)} \n");
-        } else Console.Write("\n");
-    } catch {
-        Console.WriteLine($"failed at cell {cell.textData}");
-    }
-}*/
-//Console.WriteLine($"subjects at day {string.Join("\n", calendarDays[12, 11].subjects)}");
-//List<ScheduleCell> cells = scraper.GetDaySchedule(image, coordinates[0], coordinates[1]);
-
-
-/*Console.WriteLine($"Detected cell dimensions: {cellDimensions.x} x {cellDimensions.y}");
-Console.WriteLine($"Detected outline size: {outlineSize}");
-Console.WriteLine(scheduleProcessor.IsGrayscale(Color.FromRgb(255, 255, 254)));
-while(true) {
-    Console.Write("Provide week day (x) and group (y) in format (x, y): ");
-    string coordinateString = Console.ReadLine() ?? "0, 0";
-    int[] coordinates = coordinateString.Split(',').Select(c => {
-        try {
-            int parsed = int.Parse(c);
-            return parsed;
-        } catch {
-            return -1;
-        }
-    }).ToArray();
-
-    if(coordinates.Length != 2 || coordinates.Contains(-1)) {
-        Console.WriteLine("Format error");
-        continue;
-    }
-    ScheduleScraper scraper = new();
-    List<ScheduleCell> cells = scraper.GetDaySchedule(image, coordinates[0], coordinates[1]);
-    int time = 8;
-    using(FileStream KRYSTUS = File.Create("KRYSTUS.csv")) {
-        foreach(ScheduleCell cell in cells) {
-            Console.WriteLine(cell.textData.Split("\n")[0] + " " + cell.occupation.y + "h" + " " + cell.type);
-            Console.WriteLine($" {(cell.always ? "always" : "according to calendar")}");
-            Console.WriteLine($"Cell Code: {scheduleProcessor.GetCellCode(cell.textData, cell.type)} \n");
-            byte[] FT = new UTF8Encoding(true).GetBytes($" Subject, Start Date, Start time, End Time,\n{scheduleProcessor.GetCellCode(cell.textData, cell.type)}, 11/11/2023, {time}:00, {time + cell.occupation.y}:00, \n");
-            time += cell.occupation.y;
-            if(cell.type == CellType.Empty) continue;
-            KRYSTUS.Write(FT, 0, FT.Length);
-        }
-    }
-
-    using(var calendarImage = Image.Load<Rgba32>("../../../sources/calendar1.png")) {
-        CalendarCell[] days = new CalendarCell[31];
-x        for(int i = 1; i <= 20; i++) {
-            CalendarCell cell = calendarScraper.GetCellData(calendarImage, i);
-            //Console.WriteLine($"{cell.day} \n {string.Join("\n", cell.subjects)}");
-            days[cell.day] = cell;
-        }
-        Console.WriteLine(calendarScraper.RemoveSpecialCharacters(calendarScraper.GetCalendarMonth(calendarImage)));
-        int month = calendarScraper.months[calendarScraper.RemoveSpecialCharacters(calendarScraper.GetCalendarMonth(calendarImage))];
-        for(int i = 0; i < 31; i++) {
-            try { Console.WriteLine($"subjects at {i}.{month}: \n {string.Join("\n", days[i].subjects)}"); } catch { }
-        }
-        //CalendarCell cell = calendarScraper.GetCellData(calendarImage, 17);
-        //Console.WriteLine($"{month}, w związku z powyższym: {calendarScraper.months[calendarScraper.RemoveSpecialCharacters(month)]}");
-    }
-
-}*/
-
-
