@@ -33,12 +33,14 @@ namespace WFAISchedule {
             calendarProcessor.CropWhitespace(sourceImage);
             Vector2 calendarCellDimensions = calendarProcessor.FindCellDimensions(sourceImage, out calendarOutline);
             Vector2 pivotCell = calendarProcessor.FindPivotCell(sourceImage, calendarCellDimensions, calendarOutline);
-            Vector2 pivotCellPosition = calendarProcessor.DetermineCellPosition(sourceImage, pivotCell, calendarCellDimensions);
+            Vector2 pivotCellPosition = calendarProcessor.DetermineCellPosition(sourceImage, pivotCell, calendarCellDimensions, calendarOutline);
+            Console.WriteLine($"pivot point: {pivotCell.x} {pivotCell.y}");
             Vector2 dimensions = calendarProcessor.GetTableDimensions(sourceImage, calendarCellDimensions);
             Vector2 position = new Vector2((index - 1) % dimensions.x, ((index - 1) / dimensions.x));
             position = new Vector2(dimensions.x - position.x, dimensions.y - position.y);
             Rectangle rect = calendarProcessor.GetCellRect(sourceImage, position, pivotCell, pivotCellPosition, calendarCellDimensions, calendarOutline, dimensions);
             Image<Rgba32> c = sourceImage.Clone();
+            Console.WriteLine($"x: {rect.X} y: {rect.Y}; {rect.Width} x {rect.Height}");
             c.Mutate(x => x.Crop(rect));
             MemoryStream stream = new();
             c.Save(stream, sourceImage.Metadata.DecodedImageFormat!);

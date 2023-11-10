@@ -65,23 +65,29 @@
             }
             return pivotCell;
         }
-        public Vector2 DetermineCellPosition(Image<Rgba32> sourceImage, Vector2 pivotPoint, Vector2 cellDimensions) {
+        public Vector2 DetermineCellPosition(Image<Rgba32> sourceImage, Vector2 pivotPoint, Vector2 cellDimensions, int outlineSize) {
             Vector2 position = new Vector2(0, 0);
-            position.y = (sourceImage.Height - pivotPoint.y) / cellDimensions.y;
-            position.x = (sourceImage.Width - pivotPoint.x) / cellDimensions.x;
+            position.y = (sourceImage.Height - pivotPoint.y) / (cellDimensions.y - outlineSize);
+            position.x = (sourceImage.Width - pivotPoint.x) / (cellDimensions.x - outlineSize);
             return position;
         }
         public Vector2 GetTableDimensions(Image<Rgba32> sourceImage, Vector2 cellDimensions) {
             Vector2 dimensions = new Vector2(0, 0);
-            dimensions.x = sourceImage.Width / cellDimensions.x;
-            dimensions.y = sourceImage.Height / cellDimensions.y;
+            dimensions.x = Math.Clamp(sourceImage.Width / cellDimensions.x, 0, 5);
+            dimensions.y = Math.Clamp(sourceImage.Height / cellDimensions.y, 0, 5);
             return dimensions;
         }
         public Rectangle GetCellRect(Image<Rgba32> sourceImage, Vector2 cellPosition, Vector2 pivotPoint, Vector2 pivotCellPosition, Vector2 cellDimensions, int outlineSize, Vector2 tableDimensions) {
             Vector2 localPosition = pivotCellPosition - cellPosition;
+            Console.WriteLine(pivotCellPosition.x + " " + pivotCellPosition.y);
             Console.WriteLine(cellPosition.x + " " + cellPosition.y);
+            Console.WriteLine(localPosition.x + " " + localPosition.y);
             Vector2 rectPosition = new Vector2(localPosition.x * (cellDimensions.x + outlineSize) + pivotPoint.x, localPosition.y * (cellDimensions.y + outlineSize) + pivotPoint.y);
-            Rectangle rect = new Rectangle(rectPosition.x, rectPosition.y, cellDimensions.x - 1, cellDimensions.y - 1);
+            Vector2 crop = new Vector2(0, 0);
+            if(rectPosition.x + cellDimensions.x - 1 > sourceImage.Width) crop.x = (rectPosition.x + cellDimensions.x - 1) - sourceImage.Width;
+            if(rectPosition.y + cellDimensions.y - 1 > sourceImage.Height) crop.y = (rectPosition.y + cellDimensions.y - 1) - sourceImage.Height;
+            Console.WriteLine($"crop: {crop.x} {crop.y}");
+            Rectangle rect = new Rectangle(rectPosition.x, rectPosition.y, cellDimensions.x - 1 - crop.x, cellDimensions.y - 1 - crop.y);
             return rect;
         }
         public Rectangle GetMonthRect(Image<Rgba32> sourceImage) {
